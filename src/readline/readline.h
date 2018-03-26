@@ -1,8 +1,6 @@
 #ifndef READLINE
 #define READLINE
 
-#include <tcl/tcl.h>
-
 #include "../main.h"
 
 extern char *commands[];

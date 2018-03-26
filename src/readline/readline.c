@@ -31,20 +31,23 @@ char *commands[] = {
 
 	// My Tcl Commands
 	"less", "ls", "quit", "history",
+
+	// GUI
+	"start_gui",
 	NULL
 };
 
 void init_readline()
 {
 	rl_completion_entry_function = NULL;
+	
 	rl_attempted_completion_function = custom_completion;
-	rl_completion_append_character = '\0';
 }
 
 char **custom_completion(const char *text, int start, int end)
 {
 	char **matches = NULL;
-
+	rl_completion_append_character = '\0';
 	//  If the wold is at the start of the line, then the custom completer is //
 	// used. Otherwise the default file completer of Readline is called.      //
 	if (start == 0)

@@ -1,7 +1,7 @@
 #ifndef TCL
 #define TCL
 
-#include <tcl/tcl.h>
+#include <tcl8.5/tcl.h>
 
 #include "../main.h"
 

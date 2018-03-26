@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tcl/tcl.h>
+#include <tcl8.5/tcl.h>
 
 #include "tcl.h"
 
@@ -49,7 +49,6 @@ int less(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const arg
 	sprintf(ex_command, "%s %s", command, arg);
 
 	system(ex_command);
-	free(arg);
 	free(ex_command);
 
 	return TCL_OK;
@@ -114,8 +113,6 @@ int ls(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[
 		}
 
 		sprintf(ex_command, "%s %s %s", command, arg1, arg2);
-		free(arg1);
-		free(arg2);
 	}
 	else if (argc == 2)
 	{
@@ -134,7 +131,6 @@ int ls(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[
 		}
 
 		sprintf(ex_command, "%s %s", command, arg1);
-		free(arg1);
 	}
 	else
 	{

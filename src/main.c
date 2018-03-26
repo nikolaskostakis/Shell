@@ -3,13 +3,14 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <tcl/tcl.h>
+#include <tcl8.5/tcl.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
 #include "main.h"
 #include "readline/readline.h"
 #include "tcl/tcl.h"
+#include "ui/ui-scrolled-canvas-skeleton.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,6 +23,7 @@ int main(int argc, char *argv[])
 	int result;
 	unsigned long i;
 
+	
 	Tcl_FindExecutable(argv[0]);
 	init_tcl();
 
@@ -75,6 +77,10 @@ int main(int argc, char *argv[])
 						i++;
 					}
 				}
+			}
+			else if (!strcmp(command, "start_gui"))
+			{
+				start_gui();
 			}
 			else
 			{
