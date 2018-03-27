@@ -12,9 +12,9 @@
 #ifndef UI
 #define UI
 
-#define CANVASOFFSET        25
-#define CANVASWIDTHOFFSET   CANVASOFFSET
-#define CANVASHEIGHTOFFSET  CANVASOFFSET
+#define ZOOMSTEP      0.1
+#define BOUNDZOOMIN   2
+#define BOUNDZOOMOUT  0.1
 
 extern GtkWidget *maincanvas_scroll; // scrolled window container for main canvas //
 extern GtkWidget *maincanvas; // main canvas widget // 
