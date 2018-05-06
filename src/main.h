@@ -15,4 +15,7 @@
 // PATH_MAX is a definition in linux/limits.h
 #define BUFFER_SIZE (PATH_MAX + 1)
 
+#define RETURN_SUCCESS 0
+#define RETURN_FAILURE 1
+
 #endif // MAIN

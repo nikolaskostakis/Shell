@@ -1,4 +1,4 @@
-shell: build/main.o build/tcl.o build/readline.o build/ui.o
+shell: build/main.o build/tcl.o build/readline.o build/ui.o build/parser.o
 	gcc -g `pkg-config --cflags gtk+-2.0` `pkg-config --cflags gthread-2.0` build/main.o build/tcl.o build/readline.o build/ui.o -o $@ -ltcl8.5 -lreadline -lm `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0`
 
 build/main.o: src/main.c src/main.h
@@ -17,9 +17,19 @@ build/ui.o: src/ui/ui-scrolled-canvas-skeleton.c src/ui/ui-scrolled-canvas-skele
 	mkdir -p build/ui
 	gcc -c -g `pkg-config --cflags gtk+-2.0` `pkg-config --cflags gthread-2.0` src/ui/ui-scrolled-canvas-skeleton.c -o $@ -lm `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0`
 
-.PHONY: clean
+build/parser.o: src/parser/parser.c src/parser/parser.h
+	mkdir -p build/parser
+	gcc -c -g src/parser/parser.c -o $@
 
-clean:
-	rm -f build/*.o build/tcl/*.o build/readline/*.o build/ui/*.o
+.PHONY: clean clean_build clean_shell
+
+clean_build:
+	rm -f build/*.o build/tcl/*.o build/readline/*.o build/ui/*.o src/parser/*.o
+	rm -rf build/tcl build/readline build/ui src/parser
 	rm -rf build
+
+clean_shell:
 	rm -f shell
+
+clean: clean_build clean_shell
+	

@@ -2,3 +2,6 @@
 shell
 build/
 *.rar
+
+*.sublime-project
+*.sublime-workspace
