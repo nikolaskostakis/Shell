@@ -1,9 +1,12 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <tcl8.5/tcl.h>
 
 #include "tcl.h"
+#include "../parser/parser.h"
+#include "../structures/structures.h"
 
 Tcl_Interp *interpreter = NULL;
 
@@ -17,6 +20,8 @@ void init_tcl()
 	// Create the commands
 	Tcl_CreateObjCommand(interpreter, "less", less, NULL, NULL);
 	Tcl_CreateObjCommand(interpreter, "ls", ls, NULL, NULL);
+
+	Tcl_CreateObjCommand(interpreter, "read_design", read_design, NULL, NULL);
 }
 
 int less(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
@@ -144,6 +149,36 @@ int ls(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[
 
 	system(ex_command);
 	free(ex_command);
+
+	return TCL_OK;
+}
+
+int read_design(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "<filepath>";
+
+	int len = 0;
+	FILE *fp = NULL;
+	char *file = NULL;
+
+	if (argc != 2)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	file = Tcl_GetStringFromObj(argv[1], &len);
+
+	fp = fopen(file, "r");
+
+	if (fp == NULL)
+	{
+		printf("File does not exist!\n");
+		return TCL_ERROR;
+	}
+
+	parse_file(file);
+	print_rows();
 
 	return TCL_OK;
 }

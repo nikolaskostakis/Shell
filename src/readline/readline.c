@@ -34,6 +34,9 @@ char *commands[] = {
 
 	// GUI
 	"start_gui",
+
+	// Placement
+	"read_design",
 	NULL
 };
 
