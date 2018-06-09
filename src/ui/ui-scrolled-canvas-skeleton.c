@@ -28,6 +28,9 @@ double zoomvalue = 1;
 double hscrollvalue = 0;
 double vscrollvalue = 0;
 
+int show_nets = 0;
+double design_ratio = 0;
+
 // Expose-Event Paint Function for maincanvas //
 static void expose(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
@@ -65,7 +68,10 @@ void draw_maincancas()
 	
 	setupscrolladjustments();
 
-	draw_shapes();
+	if (design_name == NULL)
+		draw_shapes();
+	else
+		draw_design();
 }
 
 void draw_shapes()
@@ -97,6 +103,91 @@ void draw_shapes()
 	cairo_move_to (maincanvas_cs, (340 + 50)*zoomvalue - maincanvasOx - te.width / 2 - te.x_bearing,
 	    (430 + 20)*zoomvalue - maincanvasOy - te.height / 2 - te.y_bearing);
 	cairo_show_text (maincanvas_cs, "Rectangle");
+}
+
+void draw_design()
+{
+	double x_ratio, y_ratio;
+
+	x_ratio = floor(maincanvasWidth / (core_width + (2 * core_X_offset)));
+	y_ratio = floor(maincanvasHeight / (core_height + (2 * core_Y_offset)));
+
+	design_ratio = (x_ratio < y_ratio) ? x_ratio : y_ratio;
+
+	draw_io();
+	draw_rows();
+	draw_components();
+
+	if (show_nets == 1)
+		draw_nets();
+}
+
+void draw_io()
+{
+	const double radius = 0.01;
+
+	unsigned int i;
+
+	for (i = 0; i < ioT_size; i++)
+	{
+		cairo_arc(maincanvas_cs, (IOT[i].x * zoomvalue * design_ratio) - maincanvasOx, (IOT[i].y * zoomvalue * design_ratio) - maincanvasOy, (radius * zoomvalue * design_ratio), 0, 2*M_PI);
+		cairo_stroke_preserve(maincanvas_cs);
+		cairo_set_source_rgb(maincanvas_cs, 1, 1, 0); // Yellow
+		cairo_fill(maincanvas_cs);
+	}
+}
+
+void draw_rows()
+{
+	unsigned int i;
+
+	for (i = 0; i < rowT_size; i++)
+	{
+		cairo_rectangle(maincanvas_cs, (RowT[i].location_x * zoomvalue * design_ratio) - maincanvasOx, (RowT[i].location_y * zoomvalue * design_ratio) - maincanvasOy, (RowT[i].width * zoomvalue * design_ratio), (RowT[i].height * zoomvalue * design_ratio));
+		cairo_set_source_rgb(maincanvas_cs, 0, 0, 1); 
+		cairo_stroke(maincanvas_cs);
+	}
+}
+
+void draw_components()
+{
+	unsigned int i;
+	cairo_text_extents_t te;
+
+	for (i = 0; i < componentT_size; i++)
+	{
+		cairo_rectangle(maincanvas_cs, (ComponentT[i].x * zoomvalue * design_ratio) - maincanvasOx, (ComponentT[i].y * zoomvalue * design_ratio) - maincanvasOy, (CELL_WIDTH * zoomvalue * design_ratio), (CELL_HEIGHT * zoomvalue * design_ratio));
+		cairo_set_source_rgb(maincanvas_cs, 0, 1, 0);
+		cairo_stroke(maincanvas_cs);
+
+		cairo_set_source_rgb(maincanvas_cs, 0, 1, 0); 
+		cairo_select_font_face (maincanvas_cs, "Georgia", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+		cairo_set_font_size (maincanvas_cs, 0.08 * design_ratio * zoomvalue);
+		cairo_text_extents (maincanvas_cs, ComponentT[i].name, &te);
+		cairo_move_to (maincanvas_cs, ((ComponentT[i].x + CELL_WIDTH/2) * zoomvalue * design_ratio) - maincanvasOx - te.width / 2 - te.x_bearing,
+		    ((ComponentT[i].y + CELL_HEIGHT/2) * zoomvalue * design_ratio) - maincanvasOy - te.height / 2 - te.y_bearing);
+		cairo_show_text (maincanvas_cs, ComponentT[i].name);
+	}
+}
+
+void draw_nets()
+{
+	unsigned int i;
+
+	cairo_set_source_rgb(maincanvas_cs, 1, 153/255, 0);
+	for (i = 0; i < netT_size; i++)
+	{
+		if (NetT[i].edge_type_one == io)
+			cairo_move_to(maincanvas_cs, (IOT[NetT[i].edge_pointer_one].x) * zoomvalue * design_ratio, (IOT[NetT[i].edge_pointer_one].y) * zoomvalue * design_ratio);
+		else // Component
+			cairo_move_to(maincanvas_cs, (ComponentT[NetT[i].edge_pointer_one].x + CELL_WIDTH/2) * zoomvalue * design_ratio, (ComponentT[NetT[i].edge_pointer_one].y + CELL_HEIGHT/2) * zoomvalue * design_ratio);
+		
+		if (NetT[i].edge_type_two == io)
+			cairo_line_to(maincanvas_cs, (IOT[NetT[i].edge_pointer_two].x) * zoomvalue * design_ratio, (IOT[NetT[i].edge_pointer_two].y) * zoomvalue * design_ratio);
+		else // Component
+			cairo_line_to(maincanvas_cs, (ComponentT[NetT[i].edge_pointer_two].x + CELL_WIDTH/2) * zoomvalue * design_ratio, (ComponentT[NetT[i].edge_pointer_two].y + CELL_HEIGHT/2) * zoomvalue * design_ratio);
+	}
+	cairo_stroke(maincanvas_cs);
 }
 
 // Size-Allocate Event Function for maincanvas // 
@@ -269,7 +360,7 @@ void start_gui()
 
 	mainwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-	gtk_window_set_title(GTK_WINDOW(mainwindow), "CADII - Assignment 2");
+	gtk_window_set_title(GTK_WINDOW(mainwindow), "CADII - Assignment 3");
 	gtk_window_set_default_size(GTK_WINDOW(mainwindow), 300, 300); // default size //
 
 	g_signal_connect(G_OBJECT(mainwindow), "destroy", G_CALLBACK(quitaction), mainwindow);

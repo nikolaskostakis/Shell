@@ -6,6 +6,7 @@
 
 #include "tcl.h"
 #include "../parser/parser.h"
+#include "../placement/placement.h"
 #include "../structures/structures.h"
 
 Tcl_Interp *interpreter = NULL;
@@ -22,6 +23,15 @@ void init_tcl()
 	Tcl_CreateObjCommand(interpreter, "ls", ls, NULL, NULL);
 
 	Tcl_CreateObjCommand(interpreter, "read_design", read_design, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "clear_design", clear_design, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "print_design_rows", print_design_rows, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "print_design_ios", print_design_ios, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "print_design_components", print_design_components, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "print_design_nets", print_design_nets, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "place_random", place_random, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "report_WL", report_WL, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "display_nets", display_nets, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "tw_minimise_WL", tw_minimise_WL, NULL, NULL);
 }
 
 int less(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
@@ -176,9 +186,216 @@ int read_design(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *co
 		printf("File does not exist!\n");
 		return TCL_ERROR;
 	}
+	fclose(fp);
 
 	parse_file(file);
+
+	connect_net_edges();
+
+	return TCL_OK;
+}
+
+int print_design_rows(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "";
+
+	if (argc != 1)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
 	print_rows();
+
+	return TCL_OK;
+}
+
+int print_design_ios(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "";
+
+	if (argc != 1)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	print_ios();
+
+	return TCL_OK;
+}
+
+int print_design_components(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "";
+
+	if (argc != 1)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	print_components();
+
+	return TCL_OK;
+}
+
+int print_design_nets(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "";
+
+	if (argc != 1)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	print_nets();
+
+	return TCL_OK;
+}
+
+int clear_design(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "";
+
+	if (argc != 1)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	if (design_name == NULL)
+	{
+		printf(YEL"No design has been imported!"NRM);
+		return TCL_OK;
+	}
+
+	free_row_table();
+	free_io_table();
+	free_component_table();
+	free_net_table();
+
+	free(design_name);
+	core_utilisation = 0;
+	core_width = 0;
+	core_height = 0;
+	aspect_ratio = 0;
+	core_X_offset = 0;
+	core_Y_offset = 0;
+
+	free(RandomT);
+	randomT_x = 0;
+	randomT_y = 0;
+
+	printf(GRN"Design has been cleared!\n"NRM);
+
+	return TCL_OK;
+}
+
+int place_random(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "";
+	int result;
+
+	if (argc != 1)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	if (design_name == NULL)
+	{
+		printf(YEL"There is no design to be placed!\n"NRM);
+		return TCL_OK;
+	}
+
+	create_random_array();
+	result = random_place_components();
+
+	printf("Random placement: ");
+	if (result == RETURN_FAILURE)
+		printf(RED"Failed! Please try again...\n"NRM);
+	else
+		printf(GRN"Succeed!\n"NRM);
+
+	return TCL_OK;
+}
+
+int report_WL(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "";
+	double result;
+
+	if (argc != 1)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	if (design_name == NULL)
+	{
+		printf(YEL"There is no design!\n"NRM);
+		return TCL_OK;
+	}
+
+	result = calculate_WL();
+	printf("Total wire length: %lf\n", result);
+
+	return TCL_OK;
+}
+
+int display_nets(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "[-on|-off]";
+	double result;
+
+	int len = 0;
+	char *flag = NULL;
+
+	if (argc != 2)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	flag = Tcl_GetStringFromObj(argv[1], &len);
+	if (flag == NULL)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	if (!strcmp(flag, "-on"))
+		show_nets = 1;
+	else if (!strcmp(flag, "-off"))
+		show_nets = 0;
+	else
+	{
+		printf("Wrong arguement %s.\n", flag);
+		return TCL_ERROR;
+	}
+
+	return TCL_OK;
+}
+
+int tw_minimise_WL(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "<noof_loops>";
+	double result;
+
+	int loops = 0;
+	int len = 0;
+
+	if (argc != 2)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	Tcl_GetInt(interp, Tcl_GetStringFromObj(argv[1], &len), &loops);
+
+	timberwolf(loops);
 
 	return TCL_OK;
 }

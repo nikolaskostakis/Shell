@@ -9,6 +9,9 @@
 #include <string.h>
 #include <limits.h>
 
+#include "../placement/placement.h"
+#include "../structures/structures.h"
+
 #ifndef UI
 #define UI
 
@@ -40,6 +43,9 @@ extern int maincanvasOy; // main canvas visible origin translation - y offset //
 
 extern GtkWidget *mainwindow; // your main window //
 
+extern int show_nets;
+extern double design_ratio;
+
 // *** Function Prototypes *** //
 
 static void expose(GtkWidget *, GdkEventExpose *, gpointer);
@@ -55,5 +61,11 @@ void start_gui();
 
 void draw_maincancas();
 void draw_shapes();
+
+void draw_design();
+void draw_io();
+void draw_rows();
+void draw_components();
+void draw_nets();
 
 #endif

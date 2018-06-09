@@ -36,7 +36,8 @@ char *commands[] = {
 	"start_gui",
 
 	// Placement
-	"read_design",
+	"read_design", "print_design_rows", "print_design_ios", "print_design_components", "print_design_nets",
+	"clear_design", "place_random", "report_WL", "display_nets", "tw_minimise_WL", 
 	NULL
 };
 

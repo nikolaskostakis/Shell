@@ -1,5 +1,5 @@
-CC = gcc
-OBJ = build/main.o build/tcl.o build/readline.o build/ui.o build/parser.o build/structures.o
+CC = gcc 
+OBJ = build/main.o build/tcl.o build/readline.o build/ui.o build/parser.o build/structures.o build/placement.o
 
 shell: $(OBJ)
 	$(CC) -g `pkg-config --cflags gtk+-2.0` `pkg-config --cflags gthread-2.0` $(OBJ) -o $@ -ltcl8.5 -lreadline -lm `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0`
@@ -28,11 +28,16 @@ build/structures.o: src/structures/structures.c src/structures/structures.h
 	@ mkdir -p build/structures
 	$(CC) -c -g src/structures/structures.c -o $@
 
+
+build/placement.o: src/placement/placement.c src/placement/placement.h
+	@ mkdir -p build/placement
+	$(CC) -c -g src/placement/placement.c -o $@
+
 .PHONY: clean clean_build clean_shell
 
 clean_build:
-	@ rm -f build/*.o build/tcl/*.o build/readline/*.o build/ui/*.o build/parser/*.o build/structures/*.o
-	@ rm -rf build/tcl build/readline build/ui build/parser build/structures
+	@ rm -f build/*.o build/tcl/*.o build/readline/*.o build/ui/*.o build/parser/*.o build/structures/*.o build/placement.o
+	@ rm -rf build/tcl build/readline build/ui build/parser build/structures build/placement
 	rm -rf build/
 
 clean_shell:

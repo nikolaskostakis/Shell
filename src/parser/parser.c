@@ -328,9 +328,129 @@ void parse_row_line(char * line)
 	insert_row(row_name, row_type, location_x, location_y, width, height);
 }
 
-void parse_io(char *line)
+void parse_io_line(char *line)
 {
+	const char location[] = "Location:";
+	const char ccs[] = "CCs:";
 
+	char *token = NULL;
+	char *name = NULL;
+
+	double x = 0;
+	double y = 0;
+
+	// Ignore first token, "IO:"
+	token = strtok(line, DELIMITERS);
+
+	token = strtok(NULL, DELIMITERS);
+	if (token == NULL)
+	{
+		printf(RED"Syntax Error!\n"NRM);
+		exit(1);
+	}
+	name = strdup(token);
+
+	token = strtok(NULL, DELIMITERS);
+	if (token == NULL)
+	{
+		printf(RED"Syntax Error!\n"NRM);
+		exit(1);
+	}
+
+	// If token is location, the its the initial definition of the IO pin
+	if (!strcmp(token, location))
+	{
+		token = strtok(NULL, DELIMITERS);
+		if (token == NULL)
+		{
+			printf(RED"Syntax Error!\n"NRM);
+			exit(1);
+		}
+		x = atof(token);
+
+		token = strtok(NULL, DELIMITERS);
+		if (token == NULL)
+		{
+			printf(RED"Syntax Error!\n"NRM);
+			exit(1);
+		}
+		y = atof(token);
+		
+		token = strtok(NULL, DELIMITERS);
+		if (token != NULL)
+		{
+			printf(RED"Syntax Error!\n"NRM);
+			exit(1);
+		}
+
+		insert_io(name, x, y);
+		return;
+	}
+
+	// If token is ccs, then its the connections of the IO pin
+	// If not its syntax error
+	if (strcmp(token, ccs))
+	{
+		printf(RED"Syntax Error!\n"NRM);
+		exit(1);
+	}
+
+	//  Check for connections
+	token = strtok(NULL, DELIMITERS);
+	if (token == NULL)
+		return;
+
+	insert_io_net(strdup(name), strdup(token));
+
+	token = strtok(NULL, DELIMITERS);
+	
+	// It is not a must to have a connection
+	while (token != NULL)
+	{
+		insert_io_net(strdup(name), strdup(token));
+		token = strtok(NULL, DELIMITERS);
+	}
+}
+
+void parse_comp_line(char *line)
+{
+	const char ccs[] = "CCs:";
+
+	char *token = NULL;
+	char *name = NULL;
+
+	// Ignore first token, "Component:"
+	token = strtok(line, DELIMITERS);
+
+	token = strtok(NULL, DELIMITERS);
+	if (token == NULL)
+	{
+		printf(RED"Syntax Error!1\n"NRM);
+		exit(1);
+	}
+	name = strdup(token);
+	insert_component(name);
+
+	token = strtok(NULL, DELIMITERS);
+	if ((token == NULL) || (strcmp(token, ccs)))
+	{
+		printf(RED"Syntax Error!2\n"NRM);
+		exit(1);
+	}
+
+	//  Check for connections
+	token = strtok(NULL, DELIMITERS);
+	if (token == NULL)
+		return;
+
+	insert_net(strdup(name), strdup(token));
+
+	token = strtok(NULL, DELIMITERS);
+	while (token != NULL)
+	{
+		insert_net(strdup(name), strdup(token));
+		token = strtok(NULL, DELIMITERS);
+	}
 }
 
 void parse_file(char *filename)
@@ -369,9 +489,11 @@ void parse_file(char *filename)
 				// free(line);
 				continue;
 			case IS_IO:
+				parse_io_line(line);
 				// free(line);
 				continue;
 			case IS_COMPONENT:
+				parse_comp_line(line);
 				// free(line);
 				continue;
 			case IS_SYNTAX_ERRROR:
@@ -388,4 +510,6 @@ void parse_file(char *filename)
 	
 	fclose(fp);
 	// free(line);
+
+	printf(GRN"File parsed successfully!\n"NRM);
 }
