@@ -29,6 +29,7 @@ void init_tcl()
 	Tcl_CreateObjCommand(interpreter, "supercube_2", supercube_2, NULL, NULL);
 	Tcl_CreateObjCommand(interpreter, "distance_2", distance_2, NULL, NULL);
 	Tcl_CreateObjCommand(interpreter, "cube_cover_2", cube_cover_2, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "sharp_2", sharp_2, NULL, NULL);
 }
 
 int less(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
@@ -615,5 +616,60 @@ int cube_cover_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *c
 	}
 	printf("cover the second cube!\n");
 
+	return TCL_OK;
+}
+
+int sharp_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "<cube_one> <cube_two>";
+	char *cube1 = NULL;
+	char *cube2 = NULL;
+	char **list = NULL;
+	int len1 = 0;
+	int len2 = 0;
+	int listLength = 0;
+	int i;
+
+	if (argc != 3)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Get first cube //
+	cube1 = Tcl_GetStringFromObj(argv[1], &len1);
+	if (cube1 == NULL)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Get second cube //
+	cube2 = Tcl_GetStringFromObj(argv[2], &len2);
+	if (cube2 == NULL)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Check if cubes' representations are valid //
+	if ((check_cube(cube1, len1) == RETURN_FAILURE) || (check_cube(cube2, len2) == RETURN_FAILURE))
+	{
+		return TCL_ERROR;
+	}
+
+	// Check if cubes have the same length //
+	if (len1 != len2)
+	{
+		printf(RED"Cubes do not have the same size!\n"NRM);
+		return TCL_ERROR;
+	}
+
+	// Run the sharp function for the two cubes //
+	list = find_sharp_2_set(cube1, cube2, len1, &listLength);
+
+	// Print and free the list //
+	print_sharp_2_set(cube1, cube2, list, listLength);
+	free_sharp_2_set(list, listLength);
 	return TCL_OK;
 }

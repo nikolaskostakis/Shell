@@ -38,5 +38,6 @@ int cube_intersect_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Ob
 int supercube_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 int distance_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 int cube_cover_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+int sharp_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 
 #endif // TCL

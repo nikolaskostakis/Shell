@@ -37,6 +37,7 @@ void insert_row(char *name, char *type, double location_x, double location_y, do
 	if (RowT == NULL)
 	{
 		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
 	}
 
 	RowT[rowT_size].name = name;
@@ -89,6 +90,7 @@ void insert_io(char *name, double x, double y)
 	if (IOT == NULL)
 	{
 		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
 	}
 
 	IOT[ioT_size].name = name;
@@ -151,6 +153,7 @@ void insert_component(char *name)
 	if (ComponentT == NULL)
 	{
 		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
 	}
 
 	ComponentT[componentT_size].name = name;
@@ -231,6 +234,7 @@ void insert_net(char *edge1, char *edge2)
 	if (NetT == NULL)
 	{
 		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
 	}
 
 	NetT[netT_size].edge_name_one = edge1;
@@ -253,6 +257,7 @@ void insert_io_net(char *io_edge, char *edge2)
 	if (NetT == NULL)
 	{
 		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
 	}
 
 	res = search_io(io_edge, &location);

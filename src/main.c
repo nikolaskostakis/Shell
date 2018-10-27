@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
 
 			if (!strcmp(command, "quit"))
 			{
+				clear_history();
+				Tcl_DeleteInterp(interpreter);
 				exit(0);
 			}
 			// Personal history, not the Tcl Command
@@ -86,7 +88,12 @@ int main(int argc, char *argv[])
 			{
 				// Execute the command
 				result = Tcl_Eval(interpreter, command);
-				printf("%s\n", Tcl_GetStringResult(interpreter));
+				
+				if (*Tcl_GetStringResult(interpreter) != '\0')
+				{
+					printf("%s\n", Tcl_GetStringResult(interpreter));
+				}
+
 				if (result == TCL_ERROR)
 				{
 					printf(RED"\tSomething is wrong with the command!\n"NRM);

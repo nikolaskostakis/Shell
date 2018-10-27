@@ -40,7 +40,7 @@ char *commands[] = {
 	"clear_design", "place_random", "report_WL", "display_nets", "tw_minimise_WL",
 
 	// Boolean
-	"cube_intersect_2", "supercube_2", "distance_2", "cube_cover_2",
+	"cube_intersect_2", "supercube_2", "distance_2", "cube_cover_2", "sharp_2",
 
 	NULL
 };
