@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
 			{
 				// Execute the command
 				result = Tcl_Eval(interpreter, command);
+				printf("%s\n", Tcl_GetStringResult(interpreter));
 				if (result == TCL_ERROR)
 				{
 					printf(RED"\tSomething is wrong with the command!\n"NRM);

@@ -1,9 +1,16 @@
 #ifndef TCL
 #define TCL
-
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <tcl8.5/tcl.h>
 
 #include "../main.h"
+#include "../cubes/cubes.h"
+#include "../parser/parser.h"
+#include "../placement/placement.h"
+#include "../structures/structures.h"
 
 // Tcl Interpreter
 extern Tcl_Interp *interpreter;
@@ -26,5 +33,10 @@ int place_random(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *c
 int report_WL(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 int display_nets(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 int tw_minimise_WL(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+
+int cube_intersect_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+int supercube_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+int distance_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+int cube_cover_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 
 #endif // TCL

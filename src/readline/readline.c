@@ -37,7 +37,11 @@ char *commands[] = {
 
 	// Placement
 	"read_design", "print_design_rows", "print_design_ios", "print_design_components", "print_design_nets",
-	"clear_design", "place_random", "report_WL", "display_nets", "tw_minimise_WL", 
+	"clear_design", "place_random", "report_WL", "display_nets", "tw_minimise_WL",
+
+	// Boolean
+	"cube_intersect_2", "supercube_2", "distance_2", "cube_cover_2",
+
 	NULL
 };
 
