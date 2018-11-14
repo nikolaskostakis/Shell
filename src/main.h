@@ -1,7 +1,18 @@
 #ifndef MAIN
 #define MAIN
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <tcl8.5/tcl.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #include <linux/limits.h>
+
+#include "readline/readline.h"
+#include "tcl/tcl.h"
 
 #define NRM  "\x1B[0m"		// Normal Color
 #define RED  "\x1B[31m"		// Red Color

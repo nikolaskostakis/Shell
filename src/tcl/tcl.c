@@ -30,6 +30,8 @@ void init_tcl()
 	Tcl_CreateObjCommand(interpreter, "distance_2", distance_2, NULL, NULL);
 	Tcl_CreateObjCommand(interpreter, "cube_cover_2", cube_cover_2, NULL, NULL);
 	Tcl_CreateObjCommand(interpreter, "sharp_2", sharp_2, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "sharp", sharp, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "OFF_f", OFF_f, NULL, NULL);
 }
 
 int less(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
@@ -670,6 +672,193 @@ int sharp_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const 
 
 	// Print and free the list //
 	print_sharp_2_set(cube1, cube2, list, listLength);
-	free_sharp_2_set(list, listLength);
+	free_sharp_set(list, listLength);
+
+	return TCL_OK;
+}
+
+int sharp(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "<cube_one> {list_of_cubes}";
+	char *cube = NULL;
+	Tcl_Obj **objList = NULL;
+	char **list = NULL;
+	char ***sharpList = NULL;
+	int len = 0;
+	int listLength = 0;
+	int listObjLen = 0;
+	int objListLength = 0;
+	int *sharpListLenghtArray = NULL;
+	int i;
+
+	if (argc != 3)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Get cube //
+	cube = Tcl_GetStringFromObj(argv[1], &len);
+	if (cube == NULL)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Get list //
+	if (Tcl_ListObjGetElements(interp, argv[2], &objListLength, &objList) != TCL_OK)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Check if all the cubes representations are valid and  have the same length //
+	if (check_cube(cube, len) == RETURN_FAILURE)
+	{
+		return TCL_ERROR;
+	}
+	for (i = 0; i < objListLength; ++i)
+	{
+		// Check if valid //
+		if (check_cube(Tcl_GetStringFromObj(objList[i], &listObjLen), listObjLen) == RETURN_FAILURE)
+		{
+			return TCL_ERROR;
+		}
+
+		// Check if they have the same lenght //
+		if (len != listObjLen)
+		{
+			printf(RED"Cubes do not have the same size!\n"NRM);
+			return TCL_ERROR;
+		} 
+	}
+
+	// If the function has one cube, run sharp_2 //
+	if (objListLength == 1)
+	{
+		list = find_sharp_2_set(cube, Tcl_GetStringFromObj(objList[0], &listObjLen), len, &listLength);
+	}
+	else
+	{
+		sharpList = (char ***) calloc(objListLength, sizeof(char **));
+		if (sharpList == NULL)
+		{
+			printf(RED"Error! Unable to allocate memory\n"NRM);
+			exit(1);
+		}
+
+		sharpListLenghtArray = (int *) calloc(objListLength, sizeof(int));
+		if (sharpListLenghtArray == NULL)
+		{
+			printf(RED"Error! Unable to allocate memory\n"NRM);
+			exit(1);
+		}
+
+		// run sharp_2 for each cube of the function //
+		for (i = 0; i < objListLength; i++)
+		{
+			sharpList[i] = find_sharp_2_set(cube, Tcl_GetStringFromObj(objList[i], &listObjLen), len, &sharpListLenghtArray[i]);
+		}
+
+		// then gather up all the sharp_2 results to find the sharp result //
+		list = find_sharp_set(sharpList, sharpListLenghtArray, objListLength, len, &listLength);
+	}
+
+	// Print and free the list //
+	print_sharp_2_set(cube, Tcl_GetStringFromObj(argv[2], &objListLength), list, listLength);
+	free_sharp_set(list, listLength);
+
+	return TCL_OK;
+}
+
+
+int OFF_f(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "{list_of_cubes}";
+	char *cube = NULL;
+	Tcl_Obj **objList = NULL;
+	char **list = NULL;
+	char ***sharpList = NULL;
+	int len = 0;
+	int listLength = 0;
+	int listObjLen = 0;
+	int objListLength = 0;
+	int *sharpListLenghtArray = NULL;
+	int i;
+
+	if (argc != 2)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Get list //
+	if (Tcl_ListObjGetElements(interp, argv[1], &objListLength, &objList) != TCL_OK)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Check if all the cubes representations are valid and  have the same length //
+	// Take the first's cube length as the default cube length
+	if (check_cube(Tcl_GetStringFromObj(objList[i], &len), len) == RETURN_FAILURE)
+	{
+		return TCL_ERROR;
+	}
+	for (i = 1; i < objListLength; ++i)
+	{
+		// Check if valid //
+		if (check_cube(Tcl_GetStringFromObj(objList[i], &listObjLen), listObjLen) == RETURN_FAILURE)
+		{
+			return TCL_ERROR;
+		}
+
+		// Check if they have the same lenght //
+		if (len != listObjLen)
+		{
+			printf(RED"Cubes do not have the same size!\n"NRM);
+			return TCL_ERROR;
+		} 
+	}
+
+	cube = create_universe(len);
+
+	// If the function has one cube, run sharp_2 //
+	if (objListLength == 1)
+	{
+		list = find_sharp_2_set(cube, Tcl_GetStringFromObj(objList[0], &listObjLen), len, &listLength);
+	}
+	else
+	{
+		// Array to store all sharp_2 results //
+		sharpList = (char ***) calloc(objListLength, sizeof(char **));
+		if (sharpList == NULL)
+		{
+			printf(RED"Error! Unable to allocate memory\n"NRM);
+			exit(1);
+		}
+
+		sharpListLenghtArray = (int *) calloc(objListLength, sizeof(int));
+		if (sharpListLenghtArray == NULL)
+		{
+			printf(RED"Error! Unable to allocate memory\n"NRM);
+			exit(1);
+		}
+
+		// run sharp_2 for each cube of the function //
+		for (i = 0; i < objListLength; i++)
+		{
+			sharpList[i] = find_sharp_2_set(cube, Tcl_GetStringFromObj(objList[i], &listObjLen), len, &sharpListLenghtArray[i]);
+		}
+
+		// then gather up all the sharp_2 results to find the sharp result //
+		list = find_sharp_set(sharpList, sharpListLenghtArray, objListLength, len, &listLength);
+	}
+
+	// Print and free the list //
+	print_sharp_2_set(cube, Tcl_GetStringFromObj(argv[1], &objListLength), list, listLength);
+	free_sharp_set(list, listLength);
+	free(cube);
+
 	return TCL_OK;
 }

@@ -1,16 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#include <tcl8.5/tcl.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-
 #include "main.h"
-#include "readline/readline.h"
-#include "tcl/tcl.h"
 #include "ui/ui-scrolled-canvas-skeleton.h"
+
 
 int main(int argc, char *argv[])
 {

@@ -1,6 +1,14 @@
 #ifndef PARSER
 #define PARSER
 
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "../main.h"
+#include "../structures/structures.h"
+
 #define DELIMITERS " \t\r\n"
 
 /* Key Words used in the input file. */

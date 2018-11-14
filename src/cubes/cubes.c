@@ -1,15 +1,33 @@
 #include "cubes.h"
 
+// Check if the cube is valid, meaning not having an element 00 //
+int check_cube_validity(char *cube, int length)
+{
+	int i;
+
+	for (i = 0; i < length; i+=2)
+	{
+		if ((cube[i] == '0') && (cube[i + 1] == '0'))
+		{
+			return RETURN_FAILURE;
+		}
+	}
+
+	return RETURN_SUCCESS;
+}
+
 // Check if the string of the cube is legal. //
 int check_cube(char *cube, int length)
 {
+	int i;
+
 	if ((length % 2) != 0)
 	{
 		printf(RED"Cube %s representation is wrong! Cubes must be represented with even columns!\n"NRM, cube);
 		return RETURN_FAILURE;
 	}
 
-	for (int i = 0; i < length; i++)
+	for (i = 0; i < length; i++)
 	{
 		if ((cube[i] != '0') && (cube[i] != '1'))
 		{
@@ -18,7 +36,28 @@ int check_cube(char *cube, int length)
 		}
 	}
 
+	if (check_cube_validity(cube, length) == RETURN_FAILURE)
+	{
+		printf(RED"Cube %s is invalid!\n"NRM, cube);
+		return RETURN_FAILURE;
+	}
+
 	return RETURN_SUCCESS;
+}
+
+int check_duplicate_cube(char *cube, char **list, int listLength)
+{
+	int i;
+
+	for (i = 0; i < listLength; i++)
+	{
+		if (strcmp(list[i], cube) == 0)
+		{
+			return RETURN_SUCCESS;
+		}
+	}
+
+	return RETURN_FAILURE;
 }
 
 // Find the intersection between two cubes. //
@@ -29,6 +68,11 @@ char *find_intersect_2(char *cube1, char *cube2, int length)
 	int i;
 
 	result = (char *) calloc((length + 1), sizeof(char));
+	if (result == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
 
 	for (i = 0; i < length; i++)
 	{
@@ -47,6 +91,11 @@ char *find_supercube_2(char *cube1, char *cube2, int length)
 	int i;
 
 	result = (char *) calloc((length + 1), sizeof(char));
+	if (result == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
 
 	for (i = 0; i < length; i++)
 	{
@@ -100,6 +149,11 @@ char *get_sharped_cube(char *cube1, char *cube2, int length, int k)
 	char *result = NULL;
 
 	result = (char *) calloc((length + 1), sizeof(char));
+	if (result == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
 
 	for (i = 0; i < length; i+=2)
 	{
@@ -110,6 +164,7 @@ char *get_sharped_cube(char *cube1, char *cube2, int length, int k)
 			continue;
 		}
 
+		// Check validity of cube's element // 
 		product[0] = ((cube1[i] - '0') & (!(cube2[i] - '0'))) + '0';
 		product[1] = ((cube1[i + 1] - '0') & (!(cube2[i + 1] - '0'))) + '0';
 
@@ -130,7 +185,6 @@ char *get_sharped_cube(char *cube1, char *cube2, int length, int k)
 char **find_sharp_2_set(char *cube1, char *cube2, int length, int *listLength)
 {
 	int i, j;
-	int halfLength = length / 2;
 	char **result = NULL;
 	char *temp = NULL;
 
@@ -157,6 +211,68 @@ char **find_sharp_2_set(char *cube1, char *cube2, int length, int *listLength)
 	return result;
 }
 
+char **find_sharp_set(char ***sharpSets, int *sharpSetsLength, int sharpSetsNumber, int cubeLength, int *listLength)
+{
+	int i, j, s;
+	char *interResult = NULL;
+	char **result = NULL;
+	char **tempResult = NULL;
+	int resultLength = 0;
+	int tempResultLength = 0;
+
+	// first is the result
+	result = sharpSets[0];
+	resultLength = sharpSetsLength[0];
+	// Run through the rest of the sharp sets //
+	for (s = 1; s < sharpSetsNumber; s++)
+	{
+		// Make the result temporary
+		tempResult = result;
+		result = NULL;
+		tempResultLength = resultLength;
+		resultLength = 0;
+
+		// Run through the temp result list //
+		for (i = 0; i < tempResultLength; i++)
+		{
+			// For each element of the temp list do intersections with the next sharp set //
+			for (j = 0; j < sharpSetsLength[s]; j++)
+			{
+				interResult = find_intersect_2(tempResult[i], *(sharpSets[s] + j), cubeLength);
+
+				// Check if the result of the intersect is not valid //
+				if (check_cube_validity(interResult, cubeLength) == RETURN_FAILURE)
+				{
+					continue;
+				}
+
+				// If the result is valid and not a duplicate, then it to the set //
+				result = (char **) realloc(result, (resultLength + 1) * sizeof(char *));
+				if (result == NULL)
+				{
+					printf(RED"Error! Unable to allocate memory\n"NRM);
+					exit(1);
+				}
+
+				if (check_duplicate_cube(interResult, result, resultLength) == RETURN_FAILURE)
+				{
+					result[resultLength] = interResult;
+					resultLength++;
+				}
+			}
+		}
+
+		free_sharp_set(tempResult, tempResultLength);
+		free_sharp_set(sharpSets[s], sharpSetsLength[s]);
+	}
+
+	free(sharpSets);
+	free(sharpSetsLength);
+
+	*listLength = resultLength;
+	return result;
+}
+
 void print_sharp_2_set(char *cube1, char *cube2, char **list, int length)
 {
 	int i;
@@ -166,6 +282,7 @@ void print_sharp_2_set(char *cube1, char *cube2, char **list, int length)
 	if (length == 0)
 	{
 		printf(MAG"\t(null)\n"NRM);
+		return;
 	}
 
 	for (i = 0; i < length; i++)
@@ -173,7 +290,8 @@ void print_sharp_2_set(char *cube1, char *cube2, char **list, int length)
 		printf(MAG"\t%s\n"NRM, list[i]);
 	}
 }
-void free_sharp_2_set(char **list, int length)
+
+void free_sharp_set(char **list, int length)
 {
 	int i;
 
@@ -183,4 +301,26 @@ void free_sharp_2_set(char **list, int length)
 	}
 
 	free(list);
+
+}
+
+// Create a universe cube //
+char *create_universe(int length)
+{
+	int i;
+	char *result = NULL;
+
+	result = (char *) calloc((length + 1), sizeof(char));
+	if (result == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+
+	for (i= 0; i < length; i++)
+	{
+		result[i] = '1';
+	}
+
+	return result;
 }

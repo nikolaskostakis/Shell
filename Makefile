@@ -1,4 +1,4 @@
-CC = gcc 
+CC = gcc
 OBJ = build/main.o build/tcl.o build/readline.o build/ui.o build/parser.o build/structures.o build/placement.o build/cubes.o
 
 shell: $(OBJ)
@@ -36,7 +36,7 @@ build/cubes.o: src/cubes/cubes.c src/cubes/cubes.h
 	@ mkdir -p build/cubes
 	$(CC) -c -g src/cubes/cubes.c -o $@
 
-.PHONY: clean clean_build clean_shell
+.PHONY: clean clean_build clean_shell new
 
 clean_build:
 	@ rm -f build/*.o build/tcl/*.o build/readline/*.o build/ui/*.o build/parser/*.o build/structures/*.o build/placement/*.o build/cubes/*.o
@@ -47,3 +47,5 @@ clean_shell:
 	rm -f shell
 
 clean: clean_build clean_shell
+
+new: clean shell

@@ -1,10 +1,3 @@
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "../main.h"
-#include "../structures/structures.h"
 #include "parser.h"
 
 int check_first_token(char *string)

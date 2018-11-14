@@ -1,6 +1,12 @@
 #ifndef STRUCTURES
 #define STRUCTURES
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "../main.h"
+
 #define CELL_WIDTH    1.260
 #define CELL_HEIGHT   0.576
 

@@ -360,7 +360,7 @@ void start_gui()
 
 	mainwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-	gtk_window_set_title(GTK_WINDOW(mainwindow), "CADII - Assignment 3");
+	gtk_window_set_title(GTK_WINDOW(mainwindow), "CADII Placement GUI");
 	gtk_window_set_default_size(GTK_WINDOW(mainwindow), 300, 300); // default size //
 
 	g_signal_connect(G_OBJECT(mainwindow), "destroy", G_CALLBACK(quitaction), mainwindow);

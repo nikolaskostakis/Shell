@@ -1,10 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <readline/readline.h>
-#include <readline/history.h>
-
 #include "readline.h"
 
 // Array with the names of of the Tcl Commands
@@ -39,8 +32,8 @@ char *commands[] = {
 	"read_design", "print_design_rows", "print_design_ios", "print_design_components", "print_design_nets",
 	"clear_design", "place_random", "report_WL", "display_nets", "tw_minimise_WL",
 
-	// Boolean
-	"cube_intersect_2", "supercube_2", "distance_2", "cube_cover_2", "sharp_2",
+	// Cubes
+	"cube_intersect_2", "supercube_2", "distance_2", "cube_cover_2", "sharp_2", "sharp", "OFF_f",
 
 	NULL
 };

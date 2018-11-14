@@ -1,5 +1,6 @@
 #ifndef TCL
 #define TCL
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,5 +40,7 @@ int supercube_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *co
 int distance_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 int cube_cover_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 int sharp_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+int sharp(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+int OFF_f(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 
 #endif // TCL
