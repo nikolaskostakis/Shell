@@ -1,5 +1,5 @@
 #include "main.h"
-#include "ui/ui-scrolled-canvas-skeleton.h"
+#include "ui/ui.h"
 
 
 int main(int argc, char *argv[])

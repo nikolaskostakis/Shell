@@ -446,7 +446,7 @@ int cube_intersect_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Ob
 
 	// Run the intersection function and print the result //
 	intersection = find_intersect_2(cube1, cube2, len1);
-	printf("Intersection of the two cubes: %s\n", intersection);
+	printf("Intersection of the two cubes: "MAG"%s\n"NRM, intersection);
 	free(intersection);
 
 	return TCL_OK;
@@ -498,7 +498,7 @@ int supercube_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *co
 
 	// Run the supercube function and print the result//
 	supercube = find_supercube_2(cube1, cube2, len1);
-	printf("Supercube of the two cubes: %s\n", supercube);
+	printf("Supercube of the two cubes: "MAG"%s\n"NRM, supercube);
 	free(supercube);
 
 	return TCL_OK;
@@ -558,7 +558,7 @@ int distance_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *con
 
 
 	// Print result //
-	printf("Distance of the two cubes: %d\n", distance);
+	printf("Distance of the two cubes: "MAG"%d\n"NRM, distance);
 
 	return TCL_OK;
 }
@@ -776,6 +776,7 @@ int OFF_f(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const ar
 {
 	const char syntax[] = "{list_of_cubes}";
 	char *cube = NULL;
+	char *cubeList = NULL;
 	Tcl_Obj **objList = NULL;
 	char **list = NULL;
 	char ***sharpList = NULL;
@@ -801,14 +802,16 @@ int OFF_f(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const ar
 
 	// Check if all the cubes representations are valid and  have the same length //
 	// Take the first's cube length as the default cube length
-	if (check_cube(Tcl_GetStringFromObj(objList[i], &len), len) == RETURN_FAILURE)
+	cubeList = Tcl_GetStringFromObj(objList[0], &len);
+	if (check_cube(cubeList, len) == RETURN_FAILURE)
 	{
 		return TCL_ERROR;
 	}
 	for (i = 1; i < objListLength; ++i)
 	{
 		// Check if valid //
-		if (check_cube(Tcl_GetStringFromObj(objList[i], &listObjLen), listObjLen) == RETURN_FAILURE)
+		cubeList = Tcl_GetStringFromObj(objList[i], &listObjLen);
+		if (check_cube(cubeList, listObjLen) == RETURN_FAILURE)
 		{
 			return TCL_ERROR;
 		}

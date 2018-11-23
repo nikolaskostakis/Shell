@@ -1,6 +1,8 @@
 CC = gcc
 OBJ = build/main.o build/tcl.o build/readline.o build/ui.o build/parser.o build/structures.o build/placement.o build/cubes.o
 
+# Compilations
+# Create executable
 shell: $(OBJ)
 	$(CC) -g `pkg-config --cflags gtk+-2.0` `pkg-config --cflags gthread-2.0` $(OBJ) -o $@ -ltcl8.5 -lreadline -lm `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0`
 
@@ -16,9 +18,9 @@ build/readline.o: src/readline/readline.c src/readline/readline.h
 	@ mkdir -p build/readline
 	$(CC) -c -g src/readline/readline.c -o $@
 
-build/ui.o: src/ui/ui-scrolled-canvas-skeleton.c src/ui/ui-scrolled-canvas-skeleton.h
+build/ui.o: src/ui/ui.c src/ui/ui.h
 	@ mkdir -p build/ui
-	$(CC) -c -g `pkg-config --cflags gtk+-2.0` `pkg-config --cflags gthread-2.0` src/ui/ui-scrolled-canvas-skeleton.c -o $@ -lm `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0`
+	$(CC) -c -g `pkg-config --cflags gtk+-2.0` `pkg-config --cflags gthread-2.0` src/ui/ui.c -o $@ -lm `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0`
 
 build/parser.o: src/parser/parser.c src/parser/parser.h
 	@ mkdir -p build/parser
@@ -38,14 +40,18 @@ build/cubes.o: src/cubes/cubes.c src/cubes/cubes.h
 
 .PHONY: clean clean_build clean_shell new
 
+# Remove objects
 clean_build:
 	@ rm -f build/*.o build/tcl/*.o build/readline/*.o build/ui/*.o build/parser/*.o build/structures/*.o build/placement/*.o build/cubes/*.o
 	@ rm -rf build/tcl build/readline build/ui build/parser build/structures build/placement build/cubes
 	rm -rf build/
 
+# Remove executable
 clean_shell:
 	rm -f shell
 
+# Remove objects and executable 
 clean: clean_build clean_shell
 
+# Remove objects, executable and create new executable
 new: clean shell
