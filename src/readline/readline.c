@@ -2,7 +2,7 @@
 
 // Array with the names of of the Tcl Commands
 char *commands[] = {
-	// Vanilla Tcl Commands (Tcl 8.6)
+	// Vanilla Tcl Commands (Tcl 8.6) //
 	"after", "append", "apply", "argc", "argv()", "array", "auto_execok", "auto_import", "auto_load",
 	"auto_mkindex", "auto_path", "auto_quality", "auto_reset", "bgerror", "binary", "break", "catch",
 	"cd", "chan", "clock", "close", "concat", "continue", "dde", "dict", "encoding", "env", "eof",
@@ -22,19 +22,21 @@ char *commands[] = {
 	"tm", "trace", "transchan", "try", "unknown", "unload", "unset", "update", "uplevel", "upvar",
 	"variable", "vwait", "while", "yield", "yieldto", "zlib",
 
-	// My Tcl Commands
+	// My Tcl Commands //
 	"less", "ls", "quit", "history",
 
-	// GUI
+	// GUI //
 	"start_gui",
 
-	// Placement
+	// Placement //
 	"read_design", "print_design_rows", "print_design_ios", "print_design_components", "print_design_nets",
 	"clear_design", "place_random", "report_WL", "display_nets", "tw_minimise_WL",
 
-	// Cubes
+	// Cubes //
 	"cube_intersect_2", "supercube_2", "distance_2", "cube_cover_2", "sharp_2", "sharp", "OFF_f",
 
+	// Graph //
+	"read_graph", "write_graph",
 	NULL
 };
 

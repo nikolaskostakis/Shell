@@ -1,30 +1,41 @@
 #include "structures.h"
 
+// Design Globals //
+
+// Desing characteristics //
 char *design_name = NULL;
 double core_utilisation = 0;
 
-// Core dimentions
+// Core dimentions //
 double core_width = 0;
 double core_height = 0;
 double aspect_ratio = 0;
 double core_X_offset = 0;
 double core_Y_offset = 0;
 
-// Row Table
+// Row Table //
 struct row *RowT = NULL;
 unsigned int rowT_size = 0;
 
-// IO Table
+// IO Table //
 struct io *IOT = NULL;
 unsigned int ioT_size = 0;
 
-// Component Table
+// Component Table //
 struct component *ComponentT = NULL;
 unsigned int componentT_size = 0;
 
-// Net Table
-struct net* NetT = NULL;
+// Net Table //
+struct net *NetT = NULL;
 unsigned int netT_size = 0;
+
+// Node Table //
+struct node *NodeT = NULL;
+unsigned int nodeTSize = 0;
+
+// Edges Table //
+struct edge *EdgeT = NULL;
+unsigned int edgeTSize = 0;
 
 void insert_row(char *name, char *type, double location_x, double location_y, double width, double height)
 {
@@ -361,4 +372,63 @@ void connect_net_edges()
 	}
 
 	printf(GRN"Nets connected successfully!\n"NRM);
+}
+
+void insert_node(char *name, unsigned int *location)
+{
+	NodeT = (struct node *) realloc(NodeT, ((nodeTSize + 1) * sizeof(struct node)));
+	if (NodeT == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+
+	NodeT[nodeTSize].name = name;
+	NodeT[nodeTSize].noofEdges = 0;
+	NodeT[nodeTSize].edges = NULL;
+
+	*location = nodeTSize;
+
+	nodeTSize++;
+}
+
+int search_node(char *name, unsigned int *location)
+{
+	unsigned int i;
+
+	for (i = 0; i < nodeTSize; i++)
+	{
+		if (strcmp(NodeT[i].name, name) == 0)
+		{
+			*location = i;
+			return RETURN_SUCCESS;
+		}
+	}
+
+	return RETURN_FAILURE;
+}
+
+void insert_edge(unsigned int source, unsigned int destination, double weight)
+{
+	EdgeT = (struct edge *) realloc(EdgeT, ((edgeTSize + 1) * sizeof(struct edge)));
+	if (EdgeT == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+
+	EdgeT[edgeTSize].weight = weight;
+	EdgeT[edgeTSize].source = source;
+	EdgeT[edgeTSize].destination = destination;
+
+	NodeT[source].edges = (unsigned int *) realloc(NodeT[source].edges, ((NodeT[source].noofEdges + 1) * sizeof(unsigned int)));
+	if (NodeT[source].edges == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+	NodeT[source].edges[NodeT[source].noofEdges] = edgeTSize;
+	NodeT[source].noofEdges++;
+
+	edgeTSize++;
 }

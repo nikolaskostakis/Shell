@@ -11,10 +11,11 @@
 
 #define DELIMITERS " \t\r\n"
 
-/* Key Words used in the input file. */
 #define ROW "Row:"
 #define IO "IO:"
 #define COMPONENT "Component:"
+
+#define ARROW "->"
 
 #define IS_SYNTAX_ERRROR  -1
 #define IS_BORDERLINE      0
@@ -25,10 +26,15 @@
 
 #define MAX_WORD 256
 
+// Design Parsing //
 int check_first_token(char *string);
 void parse_hash_line(char * line);
 void parse_row_line(char * line);
 void parse_io(char *line);
-void parse_file(char *filename);
+void parse_design_file(FILE *fp);
+
+// Graph Parsing //
+void parse_graph_file(FILE *fp);
+void write_graph_file(FILE *fp);
 
 #endif

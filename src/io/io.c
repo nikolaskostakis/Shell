@@ -1,4 +1,4 @@
-#include "parser.h"
+#include "io.h"
 
 int check_first_token(char *string)
 {
@@ -418,7 +418,7 @@ void parse_comp_line(char *line)
 	token = strtok(NULL, DELIMITERS);
 	if (token == NULL)
 	{
-		printf(RED"Syntax Error!1\n"NRM);
+		printf(RED"Syntax Error!\n"NRM);
 		exit(1);
 	}
 	name = strdup(token);
@@ -427,7 +427,7 @@ void parse_comp_line(char *line)
 	token = strtok(NULL, DELIMITERS);
 	if ((token == NULL) || (strcmp(token, ccs)))
 	{
-		printf(RED"Syntax Error!2\n"NRM);
+		printf(RED"Syntax Error!\n"NRM);
 		exit(1);
 	}
 
@@ -446,21 +446,15 @@ void parse_comp_line(char *line)
 	}
 }
 
-void parse_file(char *filename)
+// Parse the design file. Depending on the first token of the line, //
+// the corresponding function will be called to handle the line.    //
+void parse_design_file(FILE *fp)
 {
-	FILE *fp = NULL;
 	char *line = NULL;
 	char *copy_line = NULL;
 	char *token = NULL;
 	size_t length = 0;
 	int first_token = 0;
-
-	fp = fopen(filename, "r");
-	if (fp == NULL)
-	{
-		perror("fopen");
-		exit(1);
-	}
 
 	while((getline(&line, &length, fp)) != -1)
 	{
@@ -471,38 +465,118 @@ void parse_file(char *filename)
 		switch (first_token)
 		{
 			case IS_BORDERLINE:
-				// free(line);
 				continue;
 			case IS_HASH:
 				parse_hash_line(line);
-				// free(line);
 				continue;
 			case IS_ROW:
 				parse_row_line(line);
-				// free(line);
 				continue;
 			case IS_IO:
 				parse_io_line(line);
-				// free(line);
 				continue;
 			case IS_COMPONENT:
 				parse_comp_line(line);
-				// free(line);
 				continue;
 			case IS_SYNTAX_ERRROR:
 			default:
 				printf(RED"Syntax Error!\n");
 				printf("Parsing has stopped!\n"NRM);
 				fclose(fp);
-				// free(line);
 				return;
 		}
-
-		// free(line);
 	}
 	
 	fclose(fp);
-	// free(line);
+	free(line);
 
 	printf(GRN"File parsed successfully!\n"NRM);
+}
+
+void parse_graph_file(FILE *fp)
+{	
+	char *line = NULL;
+	char *token = NULL;
+	char *sourceNode = NULL;
+	char *destNode = NULL;
+	size_t length = 0;
+	double edgeWeight = 0;
+	unsigned int sourceNodeLocation = 0;
+	unsigned int destNodeLocation = 0;
+
+	while((getline(&line, &length, fp)) != -1)
+	{
+		// First token: source node //
+		token = strtok(line, DELIMITERS);
+		if (token == NULL)
+		{
+			printf(RED"Syntax Error!\n"NRM);
+			exit(1);
+		}
+		sourceNode = strdup(token);
+
+		// Second token: arrow //
+		token = strtok(NULL, DELIMITERS);
+		if (token == NULL)
+		{
+			printf(RED"Syntax Error!\n"NRM);
+			exit(1);
+		}
+		if (strcmp(token, ARROW) != 0)
+		{
+			printf(RED"Syntax Error!\n"NRM);
+			exit(1);
+		}
+
+		// Third token: destination node //
+		token = strtok(NULL, DELIMITERS);
+		if (token == NULL)
+		{
+			printf(RED"Syntax Error!\n"NRM);
+			exit(1);
+		}
+		destNode = strdup(token);
+
+		// Fourth token: weight //
+		token = strtok(NULL, DELIMITERS);
+		if (token == NULL)
+		{
+			printf(RED"Syntax Error!\n"NRM);
+			exit(1);
+		}
+		edgeWeight = atof(token);
+
+		// If there are more tokens following, error //
+		token = strtok(NULL, DELIMITERS);
+		if (token != NULL)
+		{
+			printf(RED"Syntax Error!\n"NRM);
+			exit(1);
+		}
+
+		// Insert nodes //
+		if (search_node(sourceNode, &sourceNodeLocation) == RETURN_FAILURE)
+		{
+			insert_node(sourceNode, &sourceNodeLocation);
+		}
+		if (search_node(destNode, &destNodeLocation) == RETURN_FAILURE)
+		{
+			insert_node(destNode, &destNodeLocation);
+		}
+
+		insert_edge(sourceNodeLocation, destNodeLocation, edgeWeight);
+	}
+
+	free(line);
+}
+
+void write_graph_file(FILE *fp)
+{
+	unsigned int i;
+
+	for(i = 0; i < edgeTSize; i++)
+	{
+		fprintf(fp, "%s -> %s %lf\n", NodeT[EdgeT[i].source].name, NodeT[EdgeT[i].destination].name, EdgeT[i].weight);
+	}
+	
 }

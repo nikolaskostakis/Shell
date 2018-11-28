@@ -9,7 +9,7 @@
 
 #include "../main.h"
 #include "../cubes/cubes.h"
-#include "../parser/parser.h"
+#include "../io/io.h"
 #include "../placement/placement.h"
 #include "../structures/structures.h"
 
@@ -42,5 +42,8 @@ int cube_cover_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *c
 int sharp_2(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 int sharp(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 int OFF_f(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+
+int read_graph(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+int write_graph(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 
 #endif // TCL

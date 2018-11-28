@@ -1,5 +1,5 @@
 CC = gcc
-OBJ = build/main.o build/tcl.o build/readline.o build/ui.o build/parser.o build/structures.o build/placement.o build/cubes.o
+OBJ = build/main.o build/tcl.o build/readline.o build/ui.o build/io.o build/structures.o build/placement.o build/cubes.o
 
 # Compilations
 # Create executable
@@ -22,9 +22,9 @@ build/ui.o: src/ui/ui.c src/ui/ui.h
 	@ mkdir -p build/ui
 	$(CC) -c -g `pkg-config --cflags gtk+-2.0` `pkg-config --cflags gthread-2.0` src/ui/ui.c -o $@ -lm `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0`
 
-build/parser.o: src/parser/parser.c src/parser/parser.h
-	@ mkdir -p build/parser
-	$(CC) -c -g src/parser/parser.c -o $@
+build/io.o: src/io/io.c src/io/io.h
+	@ mkdir -p build/io
+	$(CC) -c -g src/io/io.c -o $@
 
 build/structures.o: src/structures/structures.c src/structures/structures.h
 	@ mkdir -p build/structures
@@ -42,8 +42,8 @@ build/cubes.o: src/cubes/cubes.c src/cubes/cubes.h
 
 # Remove objects
 clean_build:
-	@ rm -f build/*.o build/tcl/*.o build/readline/*.o build/ui/*.o build/parser/*.o build/structures/*.o build/placement/*.o build/cubes/*.o
-	@ rm -rf build/tcl build/readline build/ui build/parser build/structures build/placement build/cubes
+	@ rm -f build/*.o build/tcl/*.o build/readline/*.o build/ui/*.o build/io/*.o build/structures/*.o build/placement/*.o build/cubes/*.o
+	@ rm -rf build/tcl build/readline build/ui build/io build/structures build/placement build/cubes
 	rm -rf build/
 
 # Remove executable

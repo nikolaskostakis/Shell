@@ -32,6 +32,9 @@ void init_tcl()
 	Tcl_CreateObjCommand(interpreter, "sharp_2", sharp_2, NULL, NULL);
 	Tcl_CreateObjCommand(interpreter, "sharp", sharp, NULL, NULL);
 	Tcl_CreateObjCommand(interpreter, "OFF_f", OFF_f, NULL, NULL);
+	
+	Tcl_CreateObjCommand(interpreter, "read_graph", read_graph, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "write_graph", write_graph, NULL, NULL);
 }
 
 int less(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
@@ -186,9 +189,9 @@ int read_design(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *co
 		printf("File does not exist!\n");
 		return TCL_ERROR;
 	}
-	fclose(fp);
 
-	parse_file(file);
+	parse_design_file(fp);
+	fclose(fp);
 
 	connect_net_edges();
 
@@ -862,6 +865,66 @@ int OFF_f(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const ar
 	print_sharp_2_set(cube, Tcl_GetStringFromObj(argv[1], &objListLength), list, listLength);
 	free_sharp_set(list, listLength);
 	free(cube);
+
+	return TCL_OK;
+}
+
+int read_graph(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "<filepath>";
+
+	int len = 0;
+	FILE *fp = NULL;
+	char *file = NULL;
+
+	if (argc != 2)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	file = Tcl_GetStringFromObj(argv[1], &len);
+
+	fp = fopen(file, "r");
+
+	if (fp == NULL)
+	{
+		printf(RED"File does not exist!\n"NRM);
+		return TCL_ERROR;
+	}
+
+	parse_graph_file(fp);
+	fclose(fp);
+
+	return TCL_OK;
+}
+
+int write_graph(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "<filepath>";
+
+	int len = 0;
+	FILE *fp = NULL;
+	char *file = NULL;
+
+	if (argc != 2)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	file = Tcl_GetStringFromObj(argv[1], &len);
+
+	fp = fopen(file, "w");
+
+	if (fp == NULL)
+	{
+		printf(RED"Problem while trying to open the file!\n"NRM);
+		return TCL_ERROR;
+	}
+
+	write_graph_file(fp);
+	fclose(fp);
 
 	return TCL_OK;
 }
