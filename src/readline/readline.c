@@ -36,7 +36,7 @@ char *commands[] = {
 	"cube_intersect_2", "supercube_2", "distance_2", "cube_cover_2", "sharp_2", "sharp", "OFF_f",
 
 	// Graph //
-	"read_graph", "write_graph",
+	"read_graph", "write_graph", "print_graph_nodes", "print_graph_edges", "graph_critical_path",
 	NULL
 };
 

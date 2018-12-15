@@ -14,6 +14,7 @@
 
 enum struct_type {nothing = 0, io, component};
 
+// Design Row //
 struct row
 {
 	char *name;
@@ -26,6 +27,7 @@ struct row
 	double height;
 };
 
+// Design I/O Pins //
 struct io
 {
 	char *name;
@@ -34,6 +36,7 @@ struct io
 	double y;
 };
 
+// Design Components/Cells //
 struct component
 {
 	char *name;
@@ -43,7 +46,7 @@ struct component
 	double y;
 };
 
-// P2P Net
+// P2P Net //
 struct net
 {
 	enum struct_type edge_type_one;
@@ -57,21 +60,36 @@ struct net
 struct edge;
 
 // Graph Node //
-struct node
+struct graphNode
 {
-	char *name;             // Node's name //
+	char *name;                     // Node's name //
+
+	double distance;                // Distance from root to this node //
+	double slack;                   // Slack of node //
+	unsigned int predecessor;       // Predecessor of this node //
 
 	// Edges //
-	unsigned int noofEdges; // Number of edges //
-	unsigned int *edges;    // Array of indexes to edges //
+	unsigned int noofIncomeEdges;   // Number of income edges //
+	unsigned int noofOutcomeEdges;  // Number of outcome edges //
+	unsigned int *edges;            // Array of indexes to outcome edges //
+	unsigned int *incomeEdges;      // Array of indexes to income edges //
 };
 
+// Graph Edge //
 struct edge
 {
 	unsigned int source;      // Node where the edge starts //
 	unsigned int destination; // Node where the edge ends //
 	double weight;            // Edge's weight //
 };
+
+// Node Queue //
+struct graph_node_queue
+{
+	struct graphNode *node;       //
+	struct graph_node_queue *next; //
+};
+
 
 // Externals //
 
@@ -104,7 +122,7 @@ extern unsigned int netT_size;
 extern int show_nets;
 
 // Node Table //
-struct node *NodeT;
+struct graphNode *NodeT;
 unsigned int nodeTSize;
 
 // Edges Table //
@@ -137,7 +155,14 @@ void connect_net_edges();
 
 void insert_node(char *name, unsigned int *location);
 int search_node(char *name, unsigned int *location);
+void print_nodes();
+void free_node_table();
 
 void insert_edge(unsigned int source, unsigned int destination, double weight);
+void print_edges();
+void free_edge_table();
+
+void queue_graphNode(unsigned int gNodeIndex);
+unsigned int dequeue_graphNode();
 
 #endif

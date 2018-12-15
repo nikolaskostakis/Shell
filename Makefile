@@ -1,5 +1,5 @@
 CC = gcc
-OBJ = build/main.o build/tcl.o build/readline.o build/ui.o build/io.o build/structures.o build/placement.o build/cubes.o
+OBJ = build/main.o build/tcl.o build/readline.o build/ui.o build/io.o build/structures.o build/placement.o build/cubes.o build/sta.o
 
 # Compilations
 # Create executable
@@ -38,12 +38,16 @@ build/cubes.o: src/cubes/cubes.c src/cubes/cubes.h
 	@ mkdir -p build/cubes
 	$(CC) -c -g src/cubes/cubes.c -o $@
 
+build/sta.o: src/sta/sta.c src/sta/sta.h
+	@ mkdir -p build/sta
+	$(CC) -c -g src/sta/sta.c -o $@
+
 .PHONY: clean clean_build clean_shell new
 
 # Remove objects
 clean_build:
-	@ rm -f build/*.o build/tcl/*.o build/readline/*.o build/ui/*.o build/io/*.o build/structures/*.o build/placement/*.o build/cubes/*.o
-	@ rm -rf build/tcl build/readline build/ui build/io build/structures build/placement build/cubes
+	@ rm -f build/*.o build/tcl/*.o build/readline/*.o build/ui/*.o build/io/*.o build/structures/*.o build/placement/*.o build/cubes/*.o build/sta/*.o
+	@ rm -rf build/tcl build/readline build/ui build/io build/structures build/placement build/cubes build/sta
 	rm -rf build/
 
 # Remove executable

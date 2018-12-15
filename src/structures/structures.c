@@ -30,12 +30,17 @@ struct net *NetT = NULL;
 unsigned int netT_size = 0;
 
 // Node Table //
-struct node *NodeT = NULL;
+struct graphNode *NodeT = NULL;
 unsigned int nodeTSize = 0;
 
 // Edges Table //
 struct edge *EdgeT = NULL;
 unsigned int edgeTSize = 0;
+
+// Node Queue //
+struct graph_node_queue *startNodeQueue = NULL;
+struct graph_node_queue *endNodeQueue = NULL;
+unsigned int nodeQueueSize = 0;
 
 void insert_row(char *name, char *type, double location_x, double location_y, double width, double height)
 {
@@ -376,16 +381,21 @@ void connect_net_edges()
 
 void insert_node(char *name, unsigned int *location)
 {
-	NodeT = (struct node *) realloc(NodeT, ((nodeTSize + 1) * sizeof(struct node)));
+	NodeT = (struct graphNode *) realloc(NodeT, ((nodeTSize + 1) * sizeof(struct graphNode)));
 	if (NodeT == NULL)
 	{
 		printf(RED"Error! Unable to allocate memory\n"NRM);
 		exit(1);
 	}
 
+	// Initialization //
 	NodeT[nodeTSize].name = name;
-	NodeT[nodeTSize].noofEdges = 0;
+	NodeT[nodeTSize].distance = 0;
+	NodeT[nodeTSize].slack = 0;	
+	NodeT[nodeTSize].noofIncomeEdges = 0;
+	NodeT[nodeTSize].noofOutcomeEdges = 0;
 	NodeT[nodeTSize].edges = NULL;
+	NodeT[nodeTSize].incomeEdges = NULL;
 
 	*location = nodeTSize;
 
@@ -408,6 +418,53 @@ int search_node(char *name, unsigned int *location)
 	return RETURN_FAILURE;
 }
 
+void print_nodes()
+{
+	unsigned int i, j;
+
+	if (nodeTSize == 0)
+	{
+		printf(YEL"Node Table empty!\n"NRM);
+		return;
+	}
+
+	for (i = 0; i < nodeTSize; i++)
+	{
+		printf("Node: "BLU"%s"NRM"\n", NodeT[i].name);
+		printf("\tDistance: "MAG"%lf"NRM"\n", NodeT[i].distance);
+		printf("\tSlack:    "MAG"%lf"NRM"\n", NodeT[i].slack);
+		printf("\tPredecessor to:\n");
+		if (NodeT[i].noofOutcomeEdges == 0)
+		{
+			printf(MAG"\t\t(null)\n"NRM);
+		}
+		else
+		{
+			for (j = 0; j < NodeT[i].noofOutcomeEdges; j++)
+			{
+				printf(MAG"\t\t%s\n"NRM, NodeT[NodeT[i].edges[j]].name);
+			}
+		}
+	}
+	printf("\n");
+}
+
+void free_node_table()
+{
+	unsigned int i;
+
+	for (i = 0; i < nodeTSize; i++)
+	{
+		free(NodeT[i].name);
+		free(NodeT[i].edges);
+		free(NodeT[i].incomeEdges);
+	}
+
+	free(NodeT);
+	NodeT = NULL;
+	nodeTSize = 0;
+}
+
 void insert_edge(unsigned int source, unsigned int destination, double weight)
 {
 	EdgeT = (struct edge *) realloc(EdgeT, ((edgeTSize + 1) * sizeof(struct edge)));
@@ -417,18 +474,121 @@ void insert_edge(unsigned int source, unsigned int destination, double weight)
 		exit(1);
 	}
 
+	// Initialization //
 	EdgeT[edgeTSize].weight = weight;
 	EdgeT[edgeTSize].source = source;
 	EdgeT[edgeTSize].destination = destination;
 
-	NodeT[source].edges = (unsigned int *) realloc(NodeT[source].edges, ((NodeT[source].noofEdges + 1) * sizeof(unsigned int)));
+	// Add successor //
+	NodeT[source].edges = (unsigned int *) realloc(NodeT[source].edges, ((NodeT[source].noofOutcomeEdges + 1) * sizeof(unsigned int)));
 	if (NodeT[source].edges == NULL)
 	{
 		printf(RED"Error! Unable to allocate memory\n"NRM);
 		exit(1);
 	}
-	NodeT[source].edges[NodeT[source].noofEdges] = edgeTSize;
-	NodeT[source].noofEdges++;
+
+	NodeT[source].edges[NodeT[source].noofOutcomeEdges] = destination;
+	NodeT[source].noofOutcomeEdges++;
+
+	// Add predecessor //
+	NodeT[destination].incomeEdges = (unsigned int *) realloc(NodeT[destination].incomeEdges, ((NodeT[destination].noofIncomeEdges + 1) * sizeof(unsigned int)));
+	if (NodeT[destination].incomeEdges == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+
+	NodeT[destination].incomeEdges[NodeT[destination].noofIncomeEdges] = source;
+	NodeT[destination].noofIncomeEdges++;
 
 	edgeTSize++;
+}
+
+void print_edges()
+{
+	unsigned int i;
+
+	if (edgeTSize == 0)
+	{
+		printf(YEL"Edge Table empty!\n"NRM);
+		return;
+	}
+
+	for (i = 0; i < edgeTSize; i++)
+	{
+		printf("Edge:\n");
+		printf("\tSource:      "GRN"%s"NRM"\n", NodeT[EdgeT[i].source].name);
+		printf("\t             "YEL"||"NRM"\n");
+		printf("\t             "YEL"||"GRN"  %lf"NRM"\n", EdgeT[i].weight);
+		printf("\t             "YEL"\\/"NRM"\n");
+		printf("\tDestination: "GRN"%s"NRM"\n", NodeT[EdgeT[i].destination].name);
+	}
+	printf("\n");
+}
+
+void free_edge_table()
+{
+	free(EdgeT);
+	EdgeT = NULL;
+
+	edgeTSize = 0;
+}
+
+// Add node to queue //
+void queue_graphNode(unsigned int gNodeIndex)
+{
+	struct graph_node_queue *qNode;
+	struct graphNode gNode;
+
+	gNode = NodeT[gNodeIndex];
+
+	qNode = (struct graph_node_queue *) calloc(1, sizeof(struct graph_node_queue));
+	if (qNode == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+
+	qNode->node = &gNode;
+
+	if (nodeQueueSize == 0)
+	{
+		startNodeQueue = qNode;
+	}
+	else
+	{
+		endNodeQueue->next = qNode;
+	}
+	
+	endNodeQueue = qNode;
+	nodeQueueSize++;
+}
+
+// Remove node from the queue //
+unsigned int dequeue_graphNode()
+{
+	struct graph_node_queue *qNode;
+	struct graphNode *gNode;
+	unsigned int index = 0;
+
+	if (nodeQueueSize == 0)
+	{
+		return -1;
+	}
+
+	gNode = startNodeQueue->node;
+	search_component(gNode->name, &index);
+
+	qNode = startNodeQueue;
+	startNodeQueue = startNodeQueue->next;
+	free(qNode);
+
+	nodeQueueSize--;
+	if (nodeQueueSize == 0)
+	{
+		startNodeQueue = NULL;
+		endNodeQueue = NULL;
+	}
+
+	return index;
 }

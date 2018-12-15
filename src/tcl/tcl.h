@@ -11,6 +11,7 @@
 #include "../cubes/cubes.h"
 #include "../io/io.h"
 #include "../placement/placement.h"
+#include "../sta/sta.h"
 #include "../structures/structures.h"
 
 // Tcl Interpreter
@@ -45,5 +46,8 @@ int OFF_f(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const ar
 
 int read_graph(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 int write_graph(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+int print_graph_nodes(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+int print_graph_edges(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+int graph_critical_path(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 
 #endif // TCL

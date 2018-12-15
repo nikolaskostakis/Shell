@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 	while (1)
 	{
 		getcwd(dir, sizeof(dir));
-		sprintf(symbol,"[%s%s%s]: ", CYN, dir, NRM);
+		sprintf(symbol,CYN"[%s]"NRM": ", dir);
 		text = readline(symbol);
 		if (text != NULL)
 		{

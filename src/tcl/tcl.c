@@ -35,6 +35,9 @@ void init_tcl()
 	
 	Tcl_CreateObjCommand(interpreter, "read_graph", read_graph, NULL, NULL);
 	Tcl_CreateObjCommand(interpreter, "write_graph", write_graph, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "print_graph_nodes", print_graph_nodes, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "print_graph_edges", print_graph_edges, NULL, NULL);
+	Tcl_CreateObjCommand(interpreter, "graph_critical_path", graph_critical_path, NULL, NULL);
 }
 
 int less(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
@@ -925,6 +928,51 @@ int write_graph(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *co
 
 	write_graph_file(fp);
 	fclose(fp);
+
+	return TCL_OK;
+}
+
+int print_graph_nodes(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "";
+
+	if (argc != 1)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	print_nodes();
+
+	return TCL_OK;
+}
+
+int print_graph_edges(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "";
+
+	if (argc != 1)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	print_edges();
+
+	return TCL_OK;
+}
+
+int graph_critical_path(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "";
+
+	if (argc != 1)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	longest_path(0);
 
 	return TCL_OK;
 }
