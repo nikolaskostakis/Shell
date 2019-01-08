@@ -445,6 +445,17 @@ void print_nodes()
 				printf(MAG"\t\t%s\n"NRM, NodeT[NodeT[i].edges[j]].name);
 			}
 		}
+		if (NodeT[i].noofIncomeEdges == 0)
+		{
+			printf(MAG"\t\t(null)\n"NRM);
+		}
+		else
+		{
+			for (j = 0; j < NodeT[i].noofIncomeEdges; j++)
+			{
+				printf(MAG"\t\t%s\n"NRM, NodeT[NodeT[i].incomeEdges[j]].name);
+			}
+		}
 	}
 	printf("\n");
 }
@@ -491,6 +502,7 @@ void insert_edge(unsigned int source, unsigned int destination, double weight)
 	NodeT[source].noofOutcomeEdges++;
 
 	// Add predecessor //
+	printf("%d", NodeT[destination].noofIncomeEdges);
 	NodeT[destination].incomeEdges = (unsigned int *) realloc(NodeT[destination].incomeEdges, ((NodeT[destination].noofIncomeEdges + 1) * sizeof(unsigned int)));
 	if (NodeT[destination].incomeEdges == NULL)
 	{
@@ -500,6 +512,7 @@ void insert_edge(unsigned int source, unsigned int destination, double weight)
 
 	NodeT[destination].incomeEdges[NodeT[destination].noofIncomeEdges] = source;
 	NodeT[destination].noofIncomeEdges++;
+	printf("%d", NodeT[destination].noofIncomeEdges);
 
 	edgeTSize++;
 }

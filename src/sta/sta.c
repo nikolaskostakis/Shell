@@ -112,6 +112,7 @@ unsigned int *back_trace(unsigned int maxDistanceNode, double maxDistance, doubl
 	criticalPathSize++;
 
 	qElementIndex = dequeue_graphNode();
+	printf("xaxa %ld\n", qElementIndex);
 	while(qElementIndex != -1)
 	{
 		qElement = NodeT[qElementIndex];
@@ -120,12 +121,12 @@ unsigned int *back_trace(unsigned int maxDistanceNode, double maxDistance, doubl
 		{
 			elementEdge = EdgeT[qElement.incomeEdges[i]];
 
-			NodeT[elementEdge.destination].slack = qElement.slack + (qElement.distance - (NodeT[elementEdge.destination].distance + elementEdge.weight));
+			NodeT[elementEdge.source].slack = qElement.slack + (qElement.distance - (NodeT[elementEdge.destination].distance + elementEdge.weight));
 			printf("%lf %lf\n", rSlack, NodeT[elementEdge.destination].slack);
-			if (NodeT[elementEdge.destination].slack == rSlack)
+			if (NodeT[elementEdge.source].slack == rSlack)
 			{
 				// Add node to queue //
-				queue_graphNode(elementEdge.destination);
+				queue_graphNode(elementEdge.source);
 
 				// Add node to critical path //
 				criticalPath = (unsigned int *) realloc(criticalPath, ((criticalPathSize + 1) * sizeof(unsigned int)));
@@ -134,7 +135,7 @@ unsigned int *back_trace(unsigned int maxDistanceNode, double maxDistance, doubl
 					printf(RED"Error! Unable to allocate memory\n"NRM);
 					exit(1);
 				}
-				criticalPath[criticalPathSize] = elementEdge.destination;
+				criticalPath[criticalPathSize] = elementEdge.source;
 				criticalPathSize++;				
 			}
 		}
@@ -208,15 +209,15 @@ void longest_path(int slackEnable)
 
 	// Find the distances of the node and the max distance //
 	maxDistance = find_longest_distance();
-
+printf("maxd %lf", maxDistance);
 	// Finde the first node with max distance //
 	nodePos = select_longest_distance_node(maxDistance);
 
 	// Back trace and find longest path //
-	path = back_trace(nodePos, maxDistance, 0, &pathSize);
+	// path = back_trace(nodePos, maxDistance, 0, &pathSize);
 
 	// Print the longst path //
-	print_longest_path(path, pathSize, slackEnable);
+	// print_longest_path(path, pathSize, slackEnable);
 
 	// free the critical path //
 	free(path);

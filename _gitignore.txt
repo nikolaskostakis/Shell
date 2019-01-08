@@ -1,8 +1,0 @@
-*.out
-shell
-build/
-*.rar
-*.pptx
-
-*.sublime-project
-*.sublime-workspace
