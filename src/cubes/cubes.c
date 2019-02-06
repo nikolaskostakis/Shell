@@ -248,6 +248,7 @@ char **find_sharp_set(char ***sharpSets, int *sharpSetsLength, int sharpSetsNumb
 	// first is the result
 	result = sharpSets[0];
 	resultLength = sharpSetsLength[0];
+
 	// Run through the rest of the sharp sets //
 	for (s = 1; s < sharpSetsNumber; s++)
 	{
@@ -292,6 +293,7 @@ char **find_sharp_set(char ***sharpSets, int *sharpSetsLength, int sharpSetsNumb
 			}
 		}
 
+		// Free the allocated memory //
 		free_sharp_set(tempResult, tempResultLength);
 		free_sharp_set(sharpSets[s], sharpSetsLength[s]);
 	}
@@ -299,6 +301,7 @@ char **find_sharp_set(char ***sharpSets, int *sharpSetsLength, int sharpSetsNumb
 	free(sharpSets);
 	free(sharpSetsLength);
 
+	// Pass the length of the result //
 	*listLength = resultLength;
 	return result;
 }
@@ -321,6 +324,8 @@ void print_sharp_2_set(char *cube1, char *cube2, char **list, int length)
 	}
 }
 
+
+// TODO: Rename the function //
 void free_sharp_set(char **list, int length)
 {
 	int i;
@@ -340,6 +345,7 @@ char *create_universe(int length)
 	int i;
 	char *result = NULL;
 
+	// Allocate Memory //
 	result = (char *) calloc((length + 1), sizeof(char));
 	if (result == NULL)
 	{
@@ -347,10 +353,216 @@ char *create_universe(int length)
 		exit(1);
 	}
 
-	for (i= 0; i < length; i++)
+	// Fill the cube with don't care values "11" to its elements // 
+	for (i = 0; i < length; i++)
 	{
 		result[i] = '1';
 	}
 
+	return result;
+}
+
+char *divide_cubes(char *dividend, char *divisor, int length)
+{
+	char *result = NULL;
+	int i;
+
+	// Allocate Memory //
+	result = calloc((length + 1), sizeof(char));
+	if (result == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+
+	// Loop for all the elements of the cube //
+	for (i = 0; i < length; i+=2)
+	{
+		// If the divisor has don't care value "11" to this element //
+		if ((divisor[i] == '1') && (divisor[i+1] == '1'))
+		{
+			// Copy the element of the dividend to the result //
+			result[i] = dividend[i];
+			result[i + 1] = dividend[i + 1];
+		}
+		// Else if the divisor and the divider have the same value to the element //
+		else if ((divisor[i] == dividend[i]) && (divisor[i + 1] == dividend[i + 1]))
+		{
+			// Replace the value with don't care "11" value //
+			result[i] = '1';
+			result[i+1] = '1';
+		}
+		// Else if they are different //
+		else
+		{
+			// Terminate the division and return NULL //
+			free(result);
+			result = NULL;
+			break;
+		}
+	}
+
+	return result;
+}
+
+char **weak_div(char **dividend, char **divisor, int dividendLength, int divisorLength, int length, int *resultLength)
+{
+	char ***divisionsResults = NULL;
+	char **result = NULL;
+	char *tempDivision = NULL;
+	int *divisionsLengths = NULL;
+	int i, j, k;
+	int resLen = 0;
+	int found;
+
+	// Create an array to store the results of all the divisions and an array with the legths//
+	divisionsResults = calloc(divisorLength, sizeof(char **));
+	if (divisionsResults == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+	divisionsLengths = calloc(divisorLength, sizeof(int));
+	if (divisionsLengths == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+
+	// Loop through the dividend and the divisor and do the division for their cubes //
+	for (i = 0; i < divisorLength; i++)
+	{
+		for (j = 0; j < dividendLength; j++)
+		{
+			// Do the division for the cubes //
+			tempDivision = divide_cubes(dividend[j], divisor[i], length);
+			
+			// If the division was successfull, store the result //
+			if (tempDivision == NULL)
+			{
+				continue;
+			}
+
+			divisionsResults[i] = (char **) realloc(divisionsResults[i], (divisionsLengths[i] + 1) * sizeof(char *));
+			if (divisionsResults == NULL)
+			{
+				printf(RED"Error! Unable to allocate memory\n"NRM);
+				exit(1);
+			}
+
+			divisionsResults[i][divisionsLengths[i]] = tempDivision;
+			divisionsLengths[i]++;
+		}
+	}
+
+	// Find the common results //
+	// Start with the results of the fist divisor //
+	for (i = 0; i < divisionsLengths[0]; i++)
+	{
+		found = 0;
+		// Throught the results of the rest to find if the results exists in other divisions //
+		for (j = 1; j < divisorLength; j++)
+		{
+			found = 0;
+			for (k = 0; k < divisionsLengths[j]; k++)
+			{
+				if (strcmp(divisionsResults[0][i], divisionsResults[j][k]) == 0)
+				{
+					found = 1;
+					break;
+				}
+			}
+			
+			if (found == 0)
+			{
+				break;
+			}
+		}
+
+		// If not continue //
+		if ((found == 0) && (divisorLength != 1))
+		{
+			continue;
+		}
+		
+		// Store the common result //
+		result = (char **) realloc(result, (resLen + 1) * sizeof(char *));
+		if (result == NULL)
+		{
+			printf(RED"Error! Unable to allocate memory\n"NRM);
+			exit(1);
+		}
+
+		result[resLen] = strdup(divisionsResults[0][i]);
+		resLen++;
+	}
+
+	
+	free(divisionsLengths);
+
+	*resultLength = resLen;
+
+	return result;
+}
+
+char **weak_div_remainder(char **dividend, char **divisor, char **quotient, int dividendLength, int divisorLength, int quotientLength, int length, int *resultLength)
+{
+	char **result = NULL;
+	char **temp = NULL;
+	int tempLength = 0;
+	int resLen = 0;
+	int found = 0;
+	int i, j;
+
+	// Allocate memory for the temporary values //
+	tempLength = divisorLength * quotientLength;
+	temp = calloc(tempLength, sizeof(char **));
+	if (temp == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+
+	// Create a temporary table with the product of the divisor and quotient //
+	for (i = 0; i < divisorLength; i++)
+	{
+		for (j = 0; j < quotientLength; j++)
+		{
+			temp[(i * divisorLength) + j] = find_intersect_2(divisor[i], quotient[j], length);
+		}
+	}
+
+	// Find the cubes that were not divided //
+	for (i = 0; i < dividendLength; i++)
+	{
+		found = 0;
+		for (j = 0; j < tempLength; j++)
+		{
+			if (strcmp(dividend[i], temp[j]) == 0)
+			{
+				found = 1;
+				break;
+			}
+		}
+
+		if (found == 1)
+		{
+			continue;
+		}
+
+		result = (char **) realloc(result, (resLen + 1) * sizeof(char *));
+		result[resLen] = strdup(dividend[i]);
+		resLen++;
+	}
+	
+	// Free the temp array //
+	for (i = 0; i < tempLength; i++)
+	{
+		free(temp[i]);
+	}
+	free(temp);
+
+	*resultLength = resLen;
+	
 	return result;
 }

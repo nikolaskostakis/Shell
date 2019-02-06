@@ -38,6 +38,8 @@ void init_tcl()
 	Tcl_CreateObjCommand(interpreter, "print_graph_nodes", print_graph_nodes, NULL, NULL);
 	Tcl_CreateObjCommand(interpreter, "print_graph_edges", print_graph_edges, NULL, NULL);
 	Tcl_CreateObjCommand(interpreter, "graph_critical_path", graph_critical_path, NULL, NULL);
+
+	Tcl_CreateObjCommand(interpreter, "alg_division", alg_division, NULL, NULL);
 }
 
 int less(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
@@ -973,6 +975,150 @@ int graph_critical_path(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl
 	}
 
 	longest_path(0);
+
+	return TCL_OK;
+}
+
+int alg_division(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[])
+{
+	const char syntax[] = "{list_of_cubes} {list_of_cubes}";
+	char **quotient = NULL;
+	char **remainder = NULL;
+	char **dividend = NULL;
+	char **divisor = NULL;
+	char *cubeList = NULL;
+	Tcl_Obj **firstObjList = NULL;
+	Tcl_Obj **secondObjList = NULL;
+	// int dividendLength = 0;
+	// int divisorLength = 0;
+	int quotientLength = 0;
+	int remainderLength = 0;
+	int firstObjListLength = 0;
+	int secondObjListLength = 0;
+	int oldLen = 0;
+	int len = 0;
+	int objLen = 0;
+	int i;
+
+	if (argc != 3)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Get first list //
+	if (Tcl_ListObjGetElements(interp, argv[1], &firstObjListLength, &firstObjList) != TCL_OK)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Check if all the cubes representations are valid and have the same length //
+	// Take the first's cube length as the default cube length //
+	cubeList = Tcl_GetStringFromObj(firstObjList[0], &len);
+	if (check_cube(cubeList, len) == RETURN_FAILURE)
+	{
+		return TCL_ERROR;
+	}
+	for (i = 1; i < firstObjListLength; ++i)
+	{
+		// Check if valid //
+		cubeList = Tcl_GetStringFromObj(firstObjList[i], &objLen);
+		if (check_cube(cubeList, objLen) == RETURN_FAILURE)
+		{
+			return TCL_ERROR;
+		}
+
+		// Check if they have the same lenght //
+		if (len != objLen)
+		{
+			printf(RED"Cubes do not have the same size!\n"NRM);
+			return TCL_ERROR;
+		} 
+	}
+	oldLen = len;
+
+	// Get second list //
+	if (Tcl_ListObjGetElements(interp, argv[2], &secondObjListLength, &secondObjList) != TCL_OK)
+	{
+		Tcl_WrongNumArgs(interp, 1, argv, syntax);
+		return TCL_ERROR;
+	}
+
+	// Check if all the cubes representations are valid and have the same length //
+	// Take the first's cube length as the default cube length //
+	// Additionally check if the length is the same as the one of the first list //
+	cubeList = Tcl_GetStringFromObj(secondObjList[0], &len);
+	if (check_cube(cubeList, len) == RETURN_FAILURE)
+	{
+		return TCL_ERROR;
+	}
+	if (len != oldLen) // The value objLen keeps the old length //
+	{
+		printf(RED"Inconsistent cube size between the two lists!%d %d\n"NRM, len, objLen);
+		return TCL_ERROR;
+	}
+	for (i = 1; i < secondObjListLength; ++i)
+	{
+		// Check if valid //
+		cubeList = Tcl_GetStringFromObj(secondObjList[i], &objLen);
+		if (check_cube(cubeList, objLen) == RETURN_FAILURE)
+		{
+			return TCL_ERROR;
+		}
+
+		// Check if they have the same lenght //
+		if (len != objLen)
+		{
+			printf(RED"Cubes do not have the same size!\n"NRM);
+			return TCL_ERROR;
+		} 
+	}
+
+	// Create arrays with the cubes of the two lists //
+	dividend = (char **) calloc(firstObjListLength, sizeof(char *));
+	if (dividend == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+	divisor = (char **) calloc(secondObjListLength, sizeof(char *));
+	if (divisor == NULL)
+	{
+		printf(RED"Error! Unable to allocate memory\n"NRM);
+		exit(1);
+	}
+
+	// Fill the arrays //
+	for (i = 0; i < firstObjListLength; i++)
+	{
+		dividend[i] = strdup(Tcl_GetStringFromObj(firstObjList[i], &objLen));
+	}
+	for (i = 0; i < secondObjListLength; i++)
+	{
+		divisor[i] = strdup(Tcl_GetStringFromObj(secondObjList[i], &objLen));
+	}
+
+	quotient = weak_div(dividend, divisor, firstObjListLength, secondObjListLength, len, &quotientLength);
+	if (quotient == NULL)
+	{
+		printf("Division is not feasible\n");
+	}
+	else
+	{
+		remainder = weak_div_remainder(dividend, divisor, quotient, firstObjListLength, secondObjListLength, quotientLength, len, &remainderLength);
+		printf("Quotient:\n");
+		for (i = 0; i < quotientLength; i++)
+		{
+			printf("\t%s\n", quotient[i]);
+		}
+		printf("Remainder:\n");
+		for (i = 0; i < remainderLength; i++)
+		{
+			printf("\t%s\n", remainder[i]);
+		}
+	}
+	
 
 	return TCL_OK;
 }

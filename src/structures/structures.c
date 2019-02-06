@@ -502,7 +502,6 @@ void insert_edge(unsigned int source, unsigned int destination, double weight)
 	NodeT[source].noofOutcomeEdges++;
 
 	// Add predecessor //
-	printf("%d", NodeT[destination].noofIncomeEdges);
 	NodeT[destination].incomeEdges = (unsigned int *) realloc(NodeT[destination].incomeEdges, ((NodeT[destination].noofIncomeEdges + 1) * sizeof(unsigned int)));
 	if (NodeT[destination].incomeEdges == NULL)
 	{
@@ -512,7 +511,6 @@ void insert_edge(unsigned int source, unsigned int destination, double weight)
 
 	NodeT[destination].incomeEdges[NodeT[destination].noofIncomeEdges] = source;
 	NodeT[destination].noofIncomeEdges++;
-	printf("%d", NodeT[destination].noofIncomeEdges);
 
 	edgeTSize++;
 }
@@ -554,7 +552,7 @@ void queue_graphNode(unsigned int gNodeIndex)
 	struct graphNode gNode;
 
 	gNode = NodeT[gNodeIndex];
-
+	printf("%s\n", gNode.name);
 	qNode = (struct graph_node_queue *) calloc(1, sizeof(struct graph_node_queue));
 	if (qNode == NULL)
 	{
@@ -575,6 +573,7 @@ void queue_graphNode(unsigned int gNodeIndex)
 	
 	endNodeQueue = qNode;
 	nodeQueueSize++;
+	printf("%s\n", startNodeQueue->node->name);
 }
 
 // Remove node from the queue //
@@ -590,7 +589,8 @@ unsigned int dequeue_graphNode()
 	}
 
 	gNode = startNodeQueue->node;
-	search_component(gNode->name, &index);
+	// printf("%s",gNode->name);
+	printf("%d\n",search_node(startNodeQueue->node->name, &index));
 
 	qNode = startNodeQueue;
 	startNodeQueue = startNodeQueue->next;

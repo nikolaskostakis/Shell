@@ -23,10 +23,11 @@ double find_longest_distance()
 	struct edge elementEdge;
 
 	qElementIndex = dequeue_graphNode();
+	// While the queue is not empty //
 	while(qElementIndex != -1)
 	{
 		qElement = NodeT[qElementIndex];
-
+	//printf("xa %u %u\n",qElement, qElementIndex);
 		for (i = 0; i < qElement.noofOutcomeEdges; i++)
 		{
 			elementEdge = EdgeT[qElement.edges[i]];
@@ -36,6 +37,9 @@ double find_longest_distance()
 				NodeT[elementEdge.destination].distance = qElement.distance + elementEdge.weight;
 				NodeT[elementEdge.destination].predecessor = qElementIndex;
 			}
+
+			printf("%lf, %lf, %lf\n", NodeT[elementEdge.destination].distance, qElement.distance, elementEdge.weight);
+
 			maxDistance = fmax(maxDistance, NodeT[elementEdge.destination].distance);
 
 			NodeT[elementEdge.destination].noofIncomeEdges--;
@@ -112,7 +116,7 @@ unsigned int *back_trace(unsigned int maxDistanceNode, double maxDistance, doubl
 	criticalPathSize++;
 
 	qElementIndex = dequeue_graphNode();
-	printf("xaxa %ld\n", qElementIndex);
+	printf("xaxa %u\n", qElementIndex);
 	while(qElementIndex != -1)
 	{
 		qElement = NodeT[qElementIndex];
@@ -209,7 +213,7 @@ void longest_path(int slackEnable)
 
 	// Find the distances of the node and the max distance //
 	maxDistance = find_longest_distance();
-printf("maxd %lf", maxDistance);
+	printf("\t"RED"Debug Print:"NRM" maxd %lf\n", maxDistance);
 	// Finde the first node with max distance //
 	nodePos = select_longest_distance_node(maxDistance);
 

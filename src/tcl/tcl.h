@@ -50,4 +50,6 @@ int print_graph_nodes(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_O
 int print_graph_edges(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 int graph_critical_path(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
 
+int alg_division(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *const argv[]);
+
 #endif // TCL
