@@ -6,7 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <tcl8.5/tcl.h>
+#include <tcl.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <linux/limits.h>

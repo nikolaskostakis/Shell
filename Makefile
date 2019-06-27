@@ -4,7 +4,7 @@ OBJ = build/main.o build/tcl.o build/readline.o build/ui.o build/io.o build/stru
 # Compilations
 # Create executable
 shell: $(OBJ)
-	$(CC) -g `pkg-config --cflags gtk+-2.0` `pkg-config --cflags gthread-2.0` $(OBJ) -o $@ -ltcl8.5 -lreadline -lm `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0`
+	$(CC) -g `pkg-config --cflags gtk+-2.0` `pkg-config --cflags gthread-2.0` $(OBJ) -o $@ -ltcl -lreadline -lm `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0`
 
 build/main.o: src/main.c src/main.h
 	@ mkdir -p build

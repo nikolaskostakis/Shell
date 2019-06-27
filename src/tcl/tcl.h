@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tcl8.5/tcl.h>
+#include <tcl.h>
 
 #include "../main.h"
 #include "../cubes/cubes.h"

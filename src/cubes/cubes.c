@@ -330,7 +330,7 @@ void free_sharp_set(char **list, int length)
 {
 	int i;
 
-	for (int i = 0; i < length; i++)
+	for (i = 0; i < length; i++)
 	{
 		free(list[i]);
 	}

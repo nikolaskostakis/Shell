@@ -196,7 +196,7 @@ int read_design(ClientData clientdata, Tcl_Interp *interp, int argc, Tcl_Obj *co
 	}
 
 	parse_design_file(fp);
-	fclose(fp);
+	// fclose(fp);
 
 	connect_net_edges();
 
